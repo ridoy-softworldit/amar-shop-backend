@@ -8,6 +8,14 @@ export interface IOrderDocument extends Document {
     roadOrPostOffice?: string;
     blockOrThana?: string;
     district?: string;
+    billingAddress?: {
+      name?: string;
+      phone?: string;
+      houseOrVillage?: string;
+      roadOrPostOffice?: string;
+      blockOrThana?: string;
+      district?: string;
+    };
   };
   lines: Array<{
     productId: mongoose.Types.ObjectId;
@@ -42,6 +50,14 @@ const OrderSchema = new Schema<IOrderDocument>(
       roadOrPostOffice: { type: String, default: "" },
       blockOrThana: { type: String, default: "" },
       district: { type: String, default: "" },
+      billingAddress: {
+        name: { type: String },
+        phone: { type: String },
+        houseOrVillage: { type: String },
+        roadOrPostOffice: { type: String },
+        blockOrThana: { type: String },
+        district: { type: String },
+      },
     },
     lines: [
       {

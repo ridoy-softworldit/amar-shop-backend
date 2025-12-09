@@ -21,6 +21,7 @@ router.post("/orders", async (req, res) => {
     itemsCount: req.body.items?.length,
     customerPhone: req.body.customer?.phone,
     customerName: req.body.customer?.name,
+    billingAddress: req.body.customer?.billingAddress,
     totals: req.body.totals,
   });
 
@@ -129,6 +130,16 @@ router.post("/orders", async (req, res) => {
         roadOrPostOffice: req.body.customer?.roadOrPostOffice ?? "",
         blockOrThana: req.body.customer?.blockOrThana ?? "",
         district: req.body.customer?.district ?? "",
+        ...(req.body.customer?.billingAddress ? {
+          billingAddress: {
+            name: req.body.customer.billingAddress.name,
+            phone: req.body.customer.billingAddress.phone,
+            houseOrVillage: req.body.customer.billingAddress.houseOrVillage,
+            roadOrPostOffice: req.body.customer.billingAddress.roadOrPostOffice,
+            blockOrThana: req.body.customer.billingAddress.blockOrThana,
+            district: req.body.customer.billingAddress.district,
+          }
+        } : {}),
       },
       lines: normalized.map((n) => ({
         productId: new mongoose.Types.ObjectId(n._id),
