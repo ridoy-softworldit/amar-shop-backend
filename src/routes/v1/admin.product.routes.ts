@@ -34,9 +34,8 @@ const AdminCreateProductDTO = z.object({
   price: z.number().nonnegative(),
   stock: z.number().int().nonnegative().default(0),
 
-  // media
-  image: z.string().url().optional(), // single (legacy)
-  images: z.array(z.string().url()).optional(), // ⭐ multi
+  image: z.string().url().optional(),
+  images: z.array(z.string().url()).optional(),
 
   compareAtPrice: z.number().nonnegative().optional(),
   isDiscounted: z.boolean().optional().default(false),
@@ -44,6 +43,7 @@ const AdminCreateProductDTO = z.object({
 
   status: z.enum(["ACTIVE", "DRAFT", "HIDDEN"]).optional().default("ACTIVE"),
   categorySlug: z.string().optional(),
+  subcategorySlug: z.string().optional(),
   brand: z.string().optional(),
   description: z.string().optional(),
   tagSlugs: z.array(z.string()).optional().default([]),
@@ -118,13 +118,14 @@ type LeanProduct = {
   title: string;
   slug: string;
   price: number;
-  image?: string; // legacy single
-  images?: string[]; // multi
+  image?: string;
+  images?: string[];
   compareAtPrice?: number;
   isDiscounted?: boolean;
   featured?: boolean;
   stock?: number;
   categorySlug?: string;
+  subcategorySlug?: string;
   tagSlugs?: string[];
   status: "ACTIVE" | "DRAFT" | "HIDDEN";
 };

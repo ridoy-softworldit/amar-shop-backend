@@ -11,6 +11,8 @@ const ProductListQuery = z.object({
   page: z.coerce.number().int().positive().default(1),
   limit: z.coerce.number().int().positive().max(60).default(12),
   category: z.string().optional(),
+  subcategory: z.string().optional(),
+  brand: z.string().optional(),
   tag: z.string().optional(),
   q: z.string().optional(),
   discounted: z.enum(["true", "false"]).optional(),
@@ -34,6 +36,8 @@ router.get(
       const filter: Record<string, any> = { status: "ACTIVE" };
 
       if (q.category) filter.categorySlug = q.category;
+      if (q.subcategory) filter.subcategorySlug = q.subcategory;
+      if (q.brand) filter.brand = q.brand;
 
       if (q.tag) {
         if (q.tag !== "trending") {
@@ -62,7 +66,7 @@ router.get(
       }
 
       const projection =
-        "_id title slug image images price compareAtPrice stock availableStock categorySlug status createdAt";
+        "_id title slug image images price compareAtPrice stock availableStock categorySlug subcategorySlug brand description status createdAt";
 
       // Run items query and count concurrently to reduce latency
       const [items, total] = await Promise.all([
@@ -82,7 +86,11 @@ router.get(
       res.json({
         ok: true,
         data: {
-          items: items.map((p) => ({ ...p, _id: String((p as any)._id) })),
+          items: items.map((p: any) => ({ 
+            ...p, 
+            _id: String(p._id),
+            brand: p.brand || null
+          })),
           total,
           page,
           limit,
@@ -138,5 +146,16 @@ router.get(
     }
   }
 );
+
+router.get("/brands", async (_req: Request, res: Response, next: NextFunction) => {
+  try {
+    await dbConnect();
+    const brands = await Product.distinct("brand", { status: "ACTIVE" });
+    const filtered = brands.filter((b: any) => b && b !== "");
+    res.json({ ok: true, data: filtered.sort() });
+  } catch (error) {
+    next(error);
+  }
+});
 
 export default router;

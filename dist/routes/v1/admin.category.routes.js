@@ -86,13 +86,23 @@ const { Types } = mongoose;
 const CreateDTO = z.object({
     name: z.string().min(2),
     slug: z.string().min(2),
-    image: z.string().optional(),
+    images: z.array(z.string().url()).max(3).optional().default([]),
     description: z.string().optional(),
     status: z.enum(["ACTIVE", "HIDDEN"]).optional().default("ACTIVE"),
 });
 const UpdateDTO = CreateDTO.partial();
 const IdParam = z.object({
     id: z.string().refine(Types.ObjectId.isValid, "Invalid ObjectId"),
+});
+router.get("/categories", requireAdmin, async (req, res, next) => {
+    try {
+        await dbConnect();
+        const categories = await Category.find().lean();
+        return res.json({ ok: true, data: categories });
+    }
+    catch (err) {
+        next(err);
+    }
 });
 router.post("/categories", requireAdmin, async (req, res, next) => {
     try {

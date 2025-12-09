@@ -9,6 +9,8 @@ const ProductListQuery = z.object({
     page: z.coerce.number().int().positive().default(1),
     limit: z.coerce.number().int().positive().max(60).default(12),
     category: z.string().optional(),
+    subcategory: z.string().optional(),
+    brand: z.string().optional(),
     tag: z.string().optional(),
     q: z.string().optional(),
     discounted: z.enum(["true", "false"]).optional(),
@@ -25,6 +27,10 @@ router.get("/products", validateQuery(ProductListQuery), async (req, res, next) 
         const filter = { status: "ACTIVE" };
         if (q.category)
             filter.categorySlug = q.category;
+        if (q.subcategory)
+            filter.subcategorySlug = q.subcategory;
+        if (q.brand)
+            filter.brand = q.brand;
         if (q.tag) {
             if (q.tag !== "trending") {
                 filter.tagSlugs = { $in: [q.tag] };
@@ -48,7 +54,7 @@ router.get("/products", validateQuery(ProductListQuery), async (req, res, next) 
         else if (q.sort === "price_desc") {
             sort = { price: -1 };
         }
-        const projection = "_id title slug image images price compareAtPrice stock availableStock categorySlug status createdAt";
+        const projection = "_id title slug image images price compareAtPrice stock availableStock categorySlug subcategorySlug brand description status createdAt";
         // Run items query and count concurrently to reduce latency
         const [items, total] = await Promise.all([
             Product.find(filter)
@@ -65,7 +71,11 @@ router.get("/products", validateQuery(ProductListQuery), async (req, res, next) 
         res.json({
             ok: true,
             data: {
-                items: items.map((p) => ({ ...p, _id: String(p._id) })),
+                items: items.map((p) => ({
+                    ...p,
+                    _id: String(p._id),
+                    brand: p.brand || null
+                })),
                 total,
                 page,
                 limit,
@@ -108,6 +118,17 @@ router.get("/products/:slug", async (req, res, next) => {
         if (!item)
             return res.status(404).json({ ok: false, code: "NOT_FOUND" });
         res.json({ ok: true, data: { ...item, _id: String(item._id) } });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+router.get("/brands", async (_req, res, next) => {
+    try {
+        await dbConnect();
+        const brands = await Product.distinct("brand", { status: "ACTIVE" });
+        const filtered = brands.filter((b) => b && b !== "");
+        res.json({ ok: true, data: filtered.sort() });
     }
     catch (error) {
         next(error);

@@ -27,14 +27,14 @@ const AdminCreateProductDTO = z.object({
     slug: z.string().min(2),
     price: z.number().nonnegative(),
     stock: z.number().int().nonnegative().default(0),
-    // media
-    image: z.string().url().optional(), // single (legacy)
-    images: z.array(z.string().url()).optional(), // ⭐ multi
+    image: z.string().url().optional(),
+    images: z.array(z.string().url()).optional(),
     compareAtPrice: z.number().nonnegative().optional(),
     isDiscounted: z.boolean().optional().default(false),
     featured: z.boolean().optional().default(false),
     status: z.enum(["ACTIVE", "DRAFT", "HIDDEN"]).optional().default("ACTIVE"),
     categorySlug: z.string().optional(),
+    subcategorySlug: z.string().optional(),
     brand: z.string().optional(),
     description: z.string().optional(),
     tagSlugs: z.array(z.string()).optional().default([]),

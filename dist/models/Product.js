@@ -132,14 +132,15 @@ const ProductSchema = new Schema({
     title: { type: String, required: true, trim: true },
     slug: { type: String, required: true, trim: true, unique: true },
     price: { type: Number, required: true, default: 0 },
-    image: { type: String, default: "" }, // legacy single
-    images: { type: [String], default: [] }, // multi
+    image: { type: String, default: "" },
+    images: { type: [String], default: [] },
     compareAtPrice: { type: Number },
     isDiscounted: { type: Boolean, default: false },
     featured: { type: Boolean, default: false },
-    stock: { type: Number, default: 0 }, // canonical stock
-    availableStock: { type: Number }, // optional alias; keep in sync if used
+    stock: { type: Number, default: 0 },
+    availableStock: { type: Number },
     categorySlug: { type: String, index: true },
+    subcategorySlug: { type: String, index: true },
     tagSlugs: { type: [String], default: [], index: true },
     brand: { type: String },
     description: { type: String, default: "" },
@@ -148,9 +149,9 @@ const ProductSchema = new Schema({
     salesCount: { type: Number, default: 0 },
     views: { type: Number, default: 0 },
 }, { timestamps: true });
-// Indexes for performance
 ProductSchema.index({ slug: 1 }, { unique: true });
 ProductSchema.index({ categorySlug: 1 });
+ProductSchema.index({ subcategorySlug: 1 });
 ProductSchema.index({ status: 1 });
 ProductSchema.index({ tagSlugs: 1 });
 export const Product = models.Product ||

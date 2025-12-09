@@ -1,12 +1,11 @@
-// src/models/Category.ts
 import mongoose from "mongoose";
 const { Schema, model, models } = mongoose;
 
-export interface CategoryDoc extends mongoose.Document {
+export interface SubcategoryDoc extends mongoose.Document {
   _id: mongoose.Types.ObjectId;
   name: string;
-  title?: string;
   slug: string;
+  categoryId: mongoose.Types.ObjectId;
   images: string[];
   description?: string;
   status: "ACTIVE" | "HIDDEN";
@@ -14,11 +13,11 @@ export interface CategoryDoc extends mongoose.Document {
   updatedAt?: Date;
 }
 
-const CategorySchema = new Schema<CategoryDoc>(
+const SubcategorySchema = new Schema<SubcategoryDoc>(
   {
-    name: { type: String, required: true, unique: true, trim: true },
-    title: { type: String, default: "" },
+    name: { type: String, required: true, trim: true },
     slug: { type: String, required: true, unique: true, trim: true },
+    categoryId: { type: Schema.Types.ObjectId, ref: "Category", required: true, index: true },
     images: { type: [String], default: [], validate: [arr => arr.length <= 3, "Max 3 images"] },
     description: { type: String, default: "" },
     status: { type: String, enum: ["ACTIVE", "HIDDEN"], default: "ACTIVE" },
@@ -26,10 +25,9 @@ const CategorySchema = new Schema<CategoryDoc>(
   { timestamps: true }
 );
 
-// Indexes
-CategorySchema.index({ slug: 1 }, { unique: true });
-CategorySchema.index({ status: 1 });
+SubcategorySchema.index({ slug: 1 }, { unique: true });
+SubcategorySchema.index({ categoryId: 1, status: 1 });
 
-export const Category =
-  (models.Category as mongoose.Model<CategoryDoc>) ||
-  model<CategoryDoc>("Category", CategorySchema);
+export const Subcategory =
+  (models.Subcategory as mongoose.Model<SubcategoryDoc>) ||
+  model<SubcategoryDoc>("Subcategory", SubcategorySchema);

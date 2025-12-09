@@ -84,16 +84,16 @@ router.get("/categories", async (_req, res) => {
   try {
     await dbConnect();
     const docs = await Category.find({ status: "ACTIVE" })
-      .select("_id title name slug image description status")
+      .select("_id title name slug images description status")
       .sort({ name: 1 })
       .lean();
 
-    const categories = (docs || []).map((c) => ({
+    const categories = (docs || []).map((c: any) => ({
       _id: String(c._id),
       title: typeof c.title === "string" && c.title.trim().length > 0 ? c.title : c.name || "",
       name: c.name || "",
       slug: c.slug || "",
-      image: c.image || "",
+      images: c.images || [],
       description: c.description || "",
       status: c.status || "ACTIVE",
     }));
@@ -109,8 +109,8 @@ router.get("/categories", async (_req, res) => {
 router.get("/categories/:slug", async (req, res) => {
   try {
     await dbConnect();
-    const c = await Category.findOne({ slug: req.params.slug, status: "ACTIVE" })
-      .select("_id title name slug image description status")
+    const c: any = await Category.findOne({ slug: req.params.slug, status: "ACTIVE" })
+      .select("_id title name slug images description status")
       .lean();
 
     if (!c) return res.status(404).json({ ok: false, message: "Category not found" });
@@ -120,7 +120,7 @@ router.get("/categories/:slug", async (req, res) => {
       title: typeof c.title === "string" && c.title.trim().length > 0 ? c.title : c.name || "",
       name: c.name || "",
       slug: c.slug || "",
-      image: c.image || "",
+      images: c.images || [],
       description: c.description || "",
       status: c.status || "ACTIVE",
     };
