@@ -11,6 +11,7 @@ const ProductListQuery = z.object({
     category: z.string().optional(),
     subcategory: z.string().optional(),
     brand: z.string().optional(),
+    manufacturer: z.string().optional(),
     tag: z.string().optional(),
     q: z.string().optional(),
     discounted: z.enum(["true", "false"]).optional(),
@@ -31,6 +32,8 @@ router.get("/products", validateQuery(ProductListQuery), async (req, res, next) 
             filter.subcategorySlug = q.subcategory;
         if (q.brand)
             filter.brand = q.brand;
+        if (q.manufacturer)
+            filter.manufacturerSlug = q.manufacturer;
         if (q.tag) {
             if (q.tag !== "trending") {
                 filter.tagSlugs = { $in: [q.tag] };
@@ -54,7 +57,7 @@ router.get("/products", validateQuery(ProductListQuery), async (req, res, next) 
         else if (q.sort === "price_desc") {
             sort = { price: -1 };
         }
-        const projection = "_id title slug image images price compareAtPrice stock availableStock categorySlug subcategorySlug brand description status createdAt";
+        const projection = "_id title slug image images price compareAtPrice stock availableStock categorySlug subcategorySlug brand manufacturerSlug description status createdAt";
         // Run items query and count concurrently to reduce latency
         const [items, total] = await Promise.all([
             Product.find(filter)

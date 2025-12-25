@@ -13,6 +13,7 @@ const ProductListQuery = z.object({
   category: z.string().optional(),
   subcategory: z.string().optional(),
   brand: z.string().optional(),
+  manufacturer: z.string().optional(),
   tag: z.string().optional(),
   q: z.string().optional(),
   discounted: z.enum(["true", "false"]).optional(),
@@ -38,6 +39,7 @@ router.get(
       if (q.category) filter.categorySlug = q.category;
       if (q.subcategory) filter.subcategorySlug = q.subcategory;
       if (q.brand) filter.brand = q.brand;
+      if (q.manufacturer) filter.manufacturerSlug = q.manufacturer;
 
       if (q.tag) {
         if (q.tag !== "trending") {
@@ -66,7 +68,7 @@ router.get(
       }
 
       const projection =
-        "_id title slug image images price compareAtPrice stock availableStock categorySlug subcategorySlug brand description status createdAt";
+        "_id title slug image images price compareAtPrice stock availableStock categorySlug subcategorySlug brand manufacturerSlug description status createdAt";
 
       // Run items query and count concurrently to reduce latency
       const [items, total] = await Promise.all([

@@ -4,6 +4,7 @@ import { z } from "zod";
 import requireAdmin from "../../middlewares/auth.js";
 import { dbConnect } from "../../db/connection.js";
 import { Product } from "../../models/Product.js";
+import { Manufacturer } from "../../models/Manufacturer.js";
 const router = Router();
 const { Types } = mongoose;
 const SizeDTO = z
@@ -36,6 +37,7 @@ const AdminCreateProductDTO = z.object({
     categorySlug: z.string().optional(),
     subcategorySlug: z.string().optional(),
     brand: z.string().optional(),
+    manufacturerSlug: z.string().optional(),
     description: z.string().optional(),
     tagSlugs: z.array(z.string()).optional().default([]),
     // ⭐ Cosmetics attributes (all optional)
@@ -65,6 +67,22 @@ router.post("/products", requireAdmin, async (req, res, next) => {
     try {
         await dbConnect();
         const body = AdminCreateProductDTO.parse(req.body);
+        // Handle manufacturer lookup
+        let manufacturerId = null;
+        if (body.manufacturerSlug) {
+            const manufacturer = await Manufacturer.findOne({
+                slug: body.manufacturerSlug,
+                status: "ACTIVE"
+            });
+            if (!manufacturer) {
+                return res.status(400).json({
+                    ok: false,
+                    code: "MANUFACTURER_NOT_FOUND",
+                    message: "Manufacturer not found"
+                });
+            }
+            manufacturerId = manufacturer._id;
+        }
         // normalize images
         const images = Array.isArray(body.images)
             ? body.images
@@ -74,6 +92,7 @@ router.post("/products", requireAdmin, async (req, res, next) => {
         const created = await Product.create({
             ...body,
             images,
+            manufacturer: manufacturerId,
         });
         return res.status(201).json({
             ok: true,
@@ -95,8 +114,23 @@ router.patch("/products/:id", requireAdmin, async (req, res, next) => {
         await dbConnect();
         const { id } = IdParam.parse(req.params);
         const body = AdminUpdateProductDTO.parse(req.body);
-        // normalize images on update too
+        // Handle manufacturer lookup
         const update = { ...body };
+        if (body.manufacturerSlug) {
+            const manufacturer = await Manufacturer.findOne({
+                slug: body.manufacturerSlug,
+                status: "ACTIVE"
+            });
+            if (!manufacturer) {
+                return res.status(400).json({
+                    ok: false,
+                    code: "MANUFACTURER_NOT_FOUND",
+                    message: "Manufacturer not found"
+                });
+            }
+            update.manufacturer = manufacturer._id;
+        }
+        // normalize images on update too
         if (Array.isArray(body.images)) {
             update.images = body.images;
         }

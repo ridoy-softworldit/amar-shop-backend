@@ -141,6 +141,8 @@ export interface ProductDoc extends mongoose.Document {
   subcategorySlug?: string;
   tagSlugs?: string[];
   brand?: string;
+  manufacturer?: mongoose.Types.ObjectId;
+  manufacturerSlug?: string;
   description?: string;
   status: "ACTIVE" | "DRAFT" | "HIDDEN";
   salesCount?: number;
@@ -181,6 +183,8 @@ const ProductSchema = new Schema(
     subcategorySlug: { type: String, index: true },
     tagSlugs: { type: [String], default: [], index: true },
     brand: { type: String },
+    manufacturer: { type: Schema.Types.ObjectId, ref: "Manufacturer", index: true },
+    manufacturerSlug: { type: String, index: true },
     description: { type: String, default: "" },
     variants: { type: [VariantSchema], default: [] },
     status: { type: String, enum: ["ACTIVE", "DRAFT", "HIDDEN"], default: "ACTIVE" },

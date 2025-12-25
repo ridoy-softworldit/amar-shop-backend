@@ -7,6 +7,14 @@ const OrderSchema = new Schema({
         roadOrPostOffice: { type: String, default: "" },
         blockOrThana: { type: String, default: "" },
         district: { type: String, default: "" },
+        billingAddress: {
+            name: { type: String },
+            phone: { type: String },
+            houseOrVillage: { type: String },
+            roadOrPostOffice: { type: String },
+            blockOrThana: { type: String },
+            district: { type: String },
+        },
     },
     lines: [
         {
