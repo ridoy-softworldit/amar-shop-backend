@@ -182,7 +182,7 @@ const UpdateProfileDTO = z.object({
         district: z.string().optional(),
     }).optional(),
 });
-router.put("/customers/profile", requireCustomer, async (req, res, next) => {
+router.patch("/customers/profile", requireCustomer, async (req, res, next) => {
     try {
         await dbConnect();
         const customerId = req.customer._id;

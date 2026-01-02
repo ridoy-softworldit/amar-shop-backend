@@ -217,7 +217,7 @@ const UpdateProfileDTO = z.object({
   }).optional(),
 });
 
-router.put("/customers/profile", requireCustomer, async (req, res, next) => {
+router.patch("/customers/profile", requireCustomer, async (req, res, next) => {
   try {
     await dbConnect();
     
