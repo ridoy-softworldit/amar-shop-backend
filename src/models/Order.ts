@@ -29,7 +29,7 @@ export interface IOrderDocument extends Document {
     shipping: number;
     grandTotal: number;
   };
-  status: "PENDING" | "IN_PROGRESS" | "IN_SHIPPING" | "DELIVERED" | "CANCELLED";
+  status: "PENDING" | "IN_PROGRESS" | "IN_SHIPPING" | "DELIVERED" | "CANCELLED" | "RETURNED";
   payment: {
     method: string;
     status: string;
@@ -79,7 +79,7 @@ const OrderSchema = new Schema<IOrderDocument>(
     },
     status: {
       type: String,
-      enum: ["PENDING", "IN_PROGRESS", "IN_SHIPPING", "DELIVERED", "CANCELLED"],
+      enum: ["PENDING", "IN_PROGRESS", "IN_SHIPPING", "DELIVERED", "CANCELLED", "RETURNED"],
       default: "PENDING",
     },
     payment: {

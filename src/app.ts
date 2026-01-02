@@ -22,6 +22,7 @@ import adminBanners from "./routes/v1/admin.banner.routes.js";
 import customerOrders from "./routes/v1/customer.orders.routes.js";
 import customerAuth from "./routes/v1/customer.auth.routes.js";
 import adminDelivery from "./routes/v1/admin.delivery.routes.js";
+import adminReturns from "./routes/v1/admin.returns.routes.js";
 import delivery from "./routes/v1/delivery.routes.js";
 
 import promoRouter from "./routes/v1/promocard.routes.js";
@@ -146,6 +147,7 @@ app.use("/api/v1/admin", adminCategories);
 app.use("/api/v1/admin", adminSubcategories);
 app.use("/api/v1/admin", adminManufacturers);
 app.use("/api/v1/admin", adminInventory);
+app.use("/api/v1/admin", adminReturns);
 app.use("/api/v1/admin", adminDelivery);
 app.use("/api/v1", delivery);
 app.use("/api/v1/promocard", promoRouter);

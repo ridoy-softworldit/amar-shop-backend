@@ -18,6 +18,8 @@ const ProductListQuery = z.object({
   q: z.string().optional(),
   discounted: z.enum(["true", "false"]).optional(),
   sort: z.string().optional(),
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
 });
 
 // escape regex util to avoid special char issues (and ReDoS risks)
@@ -48,6 +50,19 @@ router.get(
       }
 
       if (q.discounted === "true") filter.isDiscounted = true;
+
+      // Add date filtering
+      if (q.startDate || q.endDate) {
+        filter.createdAt = {};
+        if (q.startDate) {
+          filter.createdAt.$gte = new Date(q.startDate);
+        }
+        if (q.endDate) {
+          const end = new Date(q.endDate);
+          end.setDate(end.getDate() + 1);
+          filter.createdAt.$lt = end;
+        }
+      }
 
       if (q.q) {
         const safe = escapeRegex(q.q);

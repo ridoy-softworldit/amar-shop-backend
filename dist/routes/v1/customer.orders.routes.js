@@ -8,6 +8,8 @@ const OrderListQuery = z.object({
     page: z.coerce.number().int().positive().default(1),
     limit: z.coerce.number().int().positive().max(200).default(50),
     phone: z.string().min(1).optional(),
+    startDate: z.string().optional(),
+    endDate: z.string().optional(),
 });
 router.get("/customer/orders", async (req, res) => {
     try {
@@ -30,6 +32,18 @@ router.get("/customer/orders", async (req, res) => {
             });
         }
         const filter = { "customer.phone": q.phone };
+        // Add date filtering
+        if (q.startDate || q.endDate) {
+            filter.createdAt = {};
+            if (q.startDate) {
+                filter.createdAt.$gte = new Date(q.startDate);
+            }
+            if (q.endDate) {
+                const end = new Date(q.endDate);
+                end.setDate(end.getDate() + 1);
+                filter.createdAt.$lt = end;
+            }
+        }
         const items = await Order
             .find(filter)
             .sort({ createdAt: -1 })

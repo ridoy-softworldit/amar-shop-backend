@@ -167,6 +167,8 @@ router.get("/orders", async (req, res) => {
         const limit = Math.min(200, Math.max(1, Number(req.query.limit ?? 50)));
         const status = typeof req.query.status === "string" ? req.query.status.trim() : null;
         const search = typeof req.query.search === "string" ? req.query.search.trim() : null;
+        const startDate = req.query.startDate;
+        const endDate = req.query.endDate;
         const filter = {};
         if (status)
             filter.status = status;
@@ -176,6 +178,18 @@ router.get("/orders", async (req, res) => {
                 { "customer.name": { $regex: search, $options: "i" } },
                 { "customer.phone": { $regex: search, $options: "i" } },
             ];
+        }
+        // Add date filtering
+        if (startDate || endDate) {
+            filter.createdAt = {};
+            if (startDate) {
+                filter.createdAt.$gte = new Date(startDate);
+            }
+            if (endDate) {
+                const end = new Date(endDate);
+                end.setDate(end.getDate() + 1);
+                filter.createdAt.$lt = end;
+            }
         }
         const items = await Order
             .find(filter)

@@ -192,6 +192,8 @@ router.get("/orders", async (req, res) => {
       typeof req.query.status === "string" ? req.query.status.trim() : null;
     const search =
       typeof req.query.search === "string" ? req.query.search.trim() : null;
+    const startDate = req.query.startDate as string;
+    const endDate = req.query.endDate as string;
 
     const filter: Record<string, any> = {};
     if (status) filter.status = status;
@@ -201,6 +203,19 @@ router.get("/orders", async (req, res) => {
         { "customer.name": { $regex: search, $options: "i" } },
         { "customer.phone": { $regex: search, $options: "i" } },
       ];
+    }
+
+    // Add date filtering
+    if (startDate || endDate) {
+      filter.createdAt = {};
+      if (startDate) {
+        filter.createdAt.$gte = new Date(startDate);
+      }
+      if (endDate) {
+        const end = new Date(endDate);
+        end.setDate(end.getDate() + 1);
+        filter.createdAt.$lt = end;
+      }
     }
 
     const items = await (Order as any)

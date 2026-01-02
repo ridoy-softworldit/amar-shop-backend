@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const { Schema, model, models } = mongoose;
 const ManufacturerSchema = new Schema({
     name: { type: String, required: true, unique: true, trim: true },
-    slug: { type: String, required: true, unique: true, trim: true },
+    slug: { type: String, required: true, trim: true },
     image: { type: String, default: "" },
     description: { type: String, default: "" },
     status: { type: String, enum: ["ACTIVE", "HIDDEN"], default: "ACTIVE" },
