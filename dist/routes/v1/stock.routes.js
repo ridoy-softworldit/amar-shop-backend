@@ -25,6 +25,19 @@ router.patch("/products/:id/stock", async (req, res, next) => {
                 .exec();
             if (!updated)
                 return res.status(404).json({ ok: false, code: "NOT_FOUND" });
+            // Check for stock alerts
+            try {
+                const { createNotification } = await import("../v1/admin.notification.routes.js");
+                if (updated.stock <= 0) {
+                    await createNotification("OUT_OF_STOCK", "Out of Stock Alert", `${updated.title} is now out of stock`, String(updated._id));
+                }
+                else if (updated.stock <= 10) {
+                    await createNotification("LOW_STOCK", "Low Stock Alert", `${updated.title} is running low (${updated.stock} left)`, String(updated._id));
+                }
+            }
+            catch (notificationError) {
+                console.error("Failed to create stock notification:", notificationError);
+            }
             return res.json({
                 ok: true,
                 data: { _id: String(updated._id), stock: updated.stock },
@@ -48,6 +61,19 @@ router.patch("/products/:id/stock", async (req, res, next) => {
                 code: "INSUFFICIENT_STOCK",
                 message: "Not enough stock to apply change",
             });
+        }
+        // Check for stock alerts after delta update
+        try {
+            const { createNotification } = await import("../v1/admin.notification.routes.js");
+            if (updated.stock <= 0) {
+                await createNotification("OUT_OF_STOCK", "Out of Stock Alert", `${updated.title} is now out of stock`, String(updated._id));
+            }
+            else if (updated.stock <= 10) {
+                await createNotification("LOW_STOCK", "Low Stock Alert", `${updated.title} is running low (${updated.stock} left)`, String(updated._id));
+            }
+        }
+        catch (notificationError) {
+            console.error("Failed to create stock notification:", notificationError);
         }
         return res.json({
             ok: true,

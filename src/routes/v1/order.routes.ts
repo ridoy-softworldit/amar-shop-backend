@@ -163,6 +163,18 @@ router.post("/orders", async (req, res) => {
 
     const createdOrder = await Order.create(orderData);
 
+    // Create order notification
+    try {
+      const { NotificationService } = await import("../../services/notification.service.js");
+      await NotificationService.createOrderNotification(
+        String(createdOrder._id),
+        orderData.customer.name,
+        orderData.totals.grandTotal
+      );
+    } catch (notificationError) {
+      console.error("Failed to create order notification:", notificationError);
+    }
+
     return res.json({
       ok: true,
       message: "Order created successfully",

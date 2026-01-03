@@ -140,6 +140,21 @@ router.patch("/products/:id", requireAdmin, async (req, res, next) => {
         const updated = await Product.findByIdAndUpdate(id, { $set: update }, { new: true, runValidators: true }).lean();
         if (!updated)
             return res.status(404).json({ ok: false, code: "NOT_FOUND" });
+        // Check for stock alerts if stock was updated
+        if (body.stock !== undefined) {
+            try {
+                const { createNotification } = await import("./admin.notification.routes.js");
+                if (updated.stock <= 0) {
+                    await createNotification("OUT_OF_STOCK", "Out of Stock Alert", `${updated.title} is now out of stock`, String(updated._id));
+                }
+                else if (updated.stock <= 10) {
+                    await createNotification("LOW_STOCK", "Low Stock Alert", `${updated.title} is running low (${updated.stock} left)`, String(updated._id));
+                }
+            }
+            catch (notificationError) {
+                console.error("Failed to create stock notification:", notificationError);
+            }
+        }
         return res.json({
             ok: true,
             data: { ...updated, _id: updated._id.toString() },
